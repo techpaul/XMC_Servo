@@ -31,10 +31,14 @@ with this library; if not, write to the Free Software Foundation, Inc.,
 #define DETACHED_SERVO        254
 
 static uint8_t _servos[ MAX_SERVOS ];   // static array of servo pins in use
+                                        // enables checking only one pwm o/p on
+                                        // One servo
 uint8_t     _ServoCount = 0;            // the total number of attached servos
-uint16_t    _max_duty = 0;              // value of max resolution for 100% duty
+uint32_t    _max_duty = 0;              // value of max resolution for 100% duty
 
 
+// Instantiate a class ensure servo is not beyond limits of available
+// PWM Pins
 Servo::Servo()
 {
 if( _ServoCount < MAX_SERVOS )
@@ -54,23 +58,27 @@ else
 /* _updatePWM us to duty cycle to PWM
     Pass in integer microseconds
     Save current width
-    Send to PWM value as duty cycle of max value of resolution
+    Send to PWM value as duty cycle of max value for counter (16 bit)
     Assumes valid pin and setup
 */
 int16_t Servo::_updatePWM( uint8_t pin, int val )
 {
 _width = val;
-val = map( val, 0, REFRESH_TIME, 0, _max_duty );
+// microseconds to duty = time(s) * freq (Hz) * max counts
+// Simplified maths for integer operation
+val = ( val * REFRESH_FREQUENCY * _max_duty ) / 1000000;
 return analogWrite( pin, val );
 }
 
 
+// Attach servo to pin using all defaults
 uint8_t Servo::attach( int pin )
 {
 return attach( pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH );
 }
 
 
+// Attach servo to pin using max limit default
 uint8_t Servo::attach( int pin, int min )
 {
 return attach( pin, min, MAX_PULSE_WIDTH );
@@ -90,7 +98,10 @@ Returns index into pin array if successful
 uint8_t Servo::attach( int pin, int new_min, int new_max )
 {
 if( _servoIndex < MAX_SERVOS )
-  {  // Check detached servo to attach to
+  {
+  // TODO check space in _servos array to allow an invalid to become
+  // valid and make a DETACHED_SERVO become INVALID_SERVO
+  // Check detached servo to attach to
   if( _servos[ _servoIndex ] != DETACHED_SERVO )
     return INVALID_SERVO;
   if( new_min >= new_max )            // Check valid ranges
@@ -110,7 +121,7 @@ if( _servoIndex < MAX_SERVOS )
   if( _max_duty == 0 )
     {
     analogWriteResolution( SERVO_RES );
-    _max_duty = getAnalogWriteMaximum( );
+    _max_duty = getAnalogWriteMaximum( ) + 1;
     }
   // Set going using saved default
   _servos[ _servoIndex ] = pin;
@@ -184,7 +195,8 @@ if( _servoIndex < MAX_SERVOS && _servos[ _servoIndex ] != DETACHED_SERVO )
 }
 
 
-int Servo::read()   // return last written value as degrees
+// return last written value as degrees
+int Servo::read()
 {
 if( _servoIndex < MAX_SERVOS && _servos[ _servoIndex ] != DETACHED_SERVO )
   return _deg;
@@ -192,7 +204,8 @@ return 0;
 }
 
 
-int Servo::readMicroseconds()   // return last written value as microseconds
+// return last written value as microseconds
+int Servo::readMicroseconds()
 {
 if( _servoIndex < MAX_SERVOS && _servos[ _servoIndex ] != DETACHED_SERVO )
   return _width;
@@ -200,6 +213,7 @@ return 0;
 }
 
 
+// Return status of Servo object
 bool Servo::attached()
 {
 return ( _servoIndex < MAX_SERVOS && _servos[ _servoIndex ] != DETACHED_SERVO ) ? true :  false;

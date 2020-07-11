@@ -56,7 +56,7 @@ The methods are:
 // default pulse width and angle when servo is attached
 #define DEFAULT_PULSE_WIDTH  1500
 #define DEFAULT_ANGLE          90
-#define REFRESH_FREQUENCY      50
+#define REFRESH_FREQUENCY      50u
 // in microseconds refresh time
 #define REFRESH_TIME        ( 1000000u / REFRESH_FREQUENCY )
 // flag indicating an invalid servo index
