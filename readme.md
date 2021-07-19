@@ -1,7 +1,9 @@
 # XMC_Servo
 ## RC Servo Library for Infineon XMC Series (Arduino compatible API)
 #### History
-**V1.0.0** July 2020 - Original Version
+**V1.0.1** July 2021 - Fix some typos and prepare for Arduino library manager support
+
+V1.0.0 July 2020 - Original Version
 #### Copyright &copy; 2020 - Paul Carpenter - PC Services.  All right reserved.
 Infineon XMC series hardware PWM driven RC Servo output library using Infineon XMC-for-Arduino (https://github.com/Infineon/XMC-for-Arduino)
 - Uses PWM outputs on board by pin number
@@ -26,7 +28,7 @@ The software has large sections in machine code (assembler) specific to the proc
 
 Using with unsupported hardware will give the **compilation** error
 ~~~
-error "This library only supports boards with an AVR, SAM, SAMD, NRF52 or STM32F4 processor."
+error "This library only supports boards with an Infineon XMC Arm processor."
 ~~~
 ##### Known problems with Standard Arduino Servo Library
 - Outputs can only be resolved **down to 4 &micro;s steps**.
@@ -92,7 +94,7 @@ Note in many methods values are limited to
 
 |Method for channel|Actions for Methods|Parameters description |Parameter Type|Returns value/function|Return Type|
 |:--|:--|:--:|:--|:--|--:|
-|attach | Attach Servo to PWM Pin define maximum use default <BR>maximum = 2400 | Pin, min | int, int | Channel or 255 for error | uint8_t |
+|attach | Attach Servo to PWM Pin define minimum use default <BR>maximum = 2400 | Pin, min | int, int | Channel or 255 for error | uint8_t |
 
 ##### Improved functionality
 - *write()/writeMicroseconds()* have increased resolution of **1 &micro;s** and quadrant safe.
